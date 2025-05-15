@@ -1,178 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang=en>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Monkey Bounce</title>
-  <style>
-    body { margin: 0; background: #111; color: white; font-family: sans-serif; text-align: center; }
-    canvas { display: block; margin: 20px auto; background: #222; }
-    #restartBtn {
-      display: none;
-      padding: 10px 20px;
-      font-size: 18px;
-      margin-top: 10px;
-      background: #00d4ff;
-      color: #000;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-  </style>
+<meta charset=UTF-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>Monkey Bounce</title>
+<style>body{margin:0;background:#111;color:#fff;font-family:sans-serif;text-align:center}canvas{display:block;margin:20px auto;background:#222}#restartBtn{display:none;padding:10px 20px;font-size:18px;margin-top:10px;background:#00d4ff;color:#000;border:none;border-radius:8px;cursor:pointer}</style>
 </head>
 <body>
-
-<h2>Spikes jumped: <span id="score">0</span></h2>
-<canvas id="gameCanvas" width="480" height="270"></canvas>
-<button id="restartBtn" onclick="restartGame()">Restart</button>
-
-<!-- Preload monkey images and sounds -->
-<img id="monkey1" src="monkey_walk1.png" style="display:none;">
-<img id="monkey2" src="monkey_walk2.png" style="display:none;">
-<audio id="bounceSound" src="bounce.mp3" preload="auto"></audio>
-<audio id="bgMusic" src="music.mp3" preload="auto" loop></audio>
-
-<script>
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-
-const bounceSound = document.getElementById("bounceSound");
-const bgMusic = document.getElementById("bgMusic");
-const monkey1 = document.getElementById("monkey1");
-const monkey2 = document.getElementById("monkey2");
-
-let gravity = 0.5;
-let jumpStrength = -11;
-let spikeSpeed = 2;
-let score = 0;
-let isGameOver = false;
-let monkey, spikes, frameCounter = 0;
-
-function resetGame() {
-  monkey = { x: 40, y: 0, width: 32, height: 32, dy: 0, onGround: true }; // size updated
-  monkey.y = 260 - monkey.height; // ground alignment
-  score = 0;
-  isGameOver = false;
-  spikes = [];
-  document.getElementById("score").innerText = score;
-  document.getElementById("restartBtn").style.display = "none";
-  bgMusic.currentTime = 0;
-  bgMusic.play();
-  requestAnimationFrame(update);
-}
-
-function spawnSpikeAt(x) {
-  spikes.push({ x: x, y: 240, width: 20, height: 20, passed: false });
-}
-
-function spawnMoreSpikes() {
-  let farthestX = spikes.length ? Math.max(...spikes.map(s => s.x)) : 480;
-  while (farthestX < canvas.width + 600) {
-    const spacing = Math.random() * 200 + 100;
-    farthestX += spacing;
-    spawnSpikeAt(farthestX);
-  }
-}
-
-function jump() {
-  if (!isGameOver && monkey.onGround) {
-    monkey.dy = jumpStrength;
-    monkey.onGround = false;
-    bounceSound.currentTime = 0;
-    bounceSound.play();
-  }
-}
-
-canvas.addEventListener("click", jump);
-canvas.addEventListener("touchstart", e => { e.preventDefault(); jump(); });
-
-function drawMonkey() {
-  const img = (Math.floor(frameCounter / 10) % 2 === 0) ? monkey1 : monkey2;
-  ctx.drawImage(img, monkey.x, monkey.y, monkey.width, monkey.height);
-  frameCounter++;
-}
-
-function drawFloor() {
-  ctx.strokeStyle = "#888";
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(0, 260);
-  ctx.lineTo(canvas.width, 260);
-  ctx.stroke();
-}
-
-function drawSpikes() {
-  ctx.fillStyle = "#ff4444";
-  spikes.forEach(spike => {
-    ctx.beginPath();
-    ctx.moveTo(spike.x, spike.y + spike.height);
-    ctx.lineTo(spike.x + spike.width / 2, spike.y);
-    ctx.lineTo(spike.x + spike.width, spike.y + spike.height);
-    ctx.closePath();
-    ctx.fill();
-  });
-}
-
-function checkCollision() {
-  return spikes.some(spike =>
-    monkey.x + monkey.width > spike.x &&
-    monkey.x < spike.x + spike.width &&
-    monkey.y + monkey.height > spike.y
-  );
-}
-
-function update() {
-  if (isGameOver) return;
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  monkey.dy += gravity;
-  monkey.y += monkey.dy;
-
-  if (monkey.y + monkey.height >= 260) {
-    monkey.y = 260 - monkey.height;
-    monkey.dy = 0;
-    monkey.onGround = true;
-  }
-
-  spikes.forEach(spike => {
-    spike.x -= spikeSpeed;
-    if (!spike.passed && spike.x + spike.width < monkey.x) {
-      spike.passed = true;
-      score++;
-      document.getElementById("score").innerText = score;
-    }
-  });
-
-  spikes = spikes.filter(spike => spike.x + spike.width > -50);
-  spawnMoreSpikes();
-
-  drawFloor();
-  drawMonkey();
-  drawSpikes();
-
-  if (checkCollision()) {
-    isGameOver = true;
-    document.getElementById("restartBtn").style.display = "inline-block";
-    bgMusic.pause();
-    return;
-  }
-
-  requestAnimationFrame(update);
-}
-
-function restartGame() {
-  resetGame();
-}
-
-window.addEventListener("click", () => {
-  if (bgMusic.paused && !isGameOver) {
-    bgMusic.play().catch(() => {});
-  }
-}, { once: true });
-
-resetGame();
-</script>
-
+<h2>Spikes jumped: <span id=score>0</span></h2>
+<canvas id=gameCanvas width=480 height=270></canvas>
+<button id=restartBtn onclick=restartGame()>Restart</button>
+<img id=monkey1 src=monkey_walk1.png style=display:none>
+<img id=monkey2 src=monkey_walk2.png style=display:none>
+<audio id=bounceSound src=bounce.mp3 preload=auto></audio>
+<audio id=bgMusic src=music.mp3 preload=auto loop></audio>
+<script>const canvas=document.getElementById("gameCanvas"),ctx=canvas.getContext("2d"),bounceSound=document.getElementById("bounceSound"),bgMusic=document.getElementById("bgMusic"),monkey1=document.getElementById("monkey1"),monkey2=document.getElementById("monkey2");let monkey,spikes,gravity=.5,jumpStrength=-11,spikeSpeed=2,score=0,isGameOver=!1,frameCounter=0;function resetGame(){monkey={x:40,y:0,width:32,height:32,dy:0,onGround:!0},monkey.y=260-monkey.height,score=0,isGameOver=!1,spikes=[],document.getElementById("score").innerText=score,document.getElementById("restartBtn").style.display="none",bgMusic.currentTime=0,bgMusic.play(),requestAnimationFrame(update)}function spawnSpikeAt(e){spikes.push({x:e,y:240,width:20,height:20,passed:!1})}function spawnMoreSpikes(){let e=spikes.length?Math.max(...spikes.map((e=>e.x))):480;for(;e<canvas.width+600;){e+=200*Math.random()+100,spawnSpikeAt(e)}}function jump(){!isGameOver&&monkey.onGround&&(monkey.dy=jumpStrength,monkey.onGround=!1,bounceSound.currentTime=0,bounceSound.play())}function drawMonkey(){const e=Math.floor(frameCounter/10)%2==0?monkey1:monkey2;ctx.drawImage(e,monkey.x,monkey.y,monkey.width,monkey.height),frameCounter++}function drawFloor(){ctx.strokeStyle="#888",ctx.lineWidth=2,ctx.beginPath(),ctx.moveTo(0,260),ctx.lineTo(canvas.width,260),ctx.stroke()}function drawSpikes(){ctx.fillStyle="#ff4444",spikes.forEach((e=>{ctx.beginPath(),ctx.moveTo(e.x,e.y+e.height),ctx.lineTo(e.x+e.width/2,e.y),ctx.lineTo(e.x+e.width,e.y+e.height),ctx.closePath(),ctx.fill()}))}function checkCollision(){return spikes.some((e=>monkey.x+monkey.width>e.x&&monkey.x<e.x+e.width&&monkey.y+monkey.height>e.y))}function update(){if(!isGameOver){if(ctx.clearRect(0,0,canvas.width,canvas.height),monkey.dy+=gravity,monkey.y+=monkey.dy,monkey.y+monkey.height>=260&&(monkey.y=260-monkey.height,monkey.dy=0,monkey.onGround=!0),spikes.forEach((e=>{e.x-=spikeSpeed,!e.passed&&e.x+e.width<monkey.x&&(e.passed=!0,score++,document.getElementById("score").innerText=score)})),spikes=spikes.filter((e=>e.x+e.width>-50)),spawnMoreSpikes(),drawFloor(),drawMonkey(),drawSpikes(),checkCollision())return isGameOver=!0,document.getElementById("restartBtn").style.display="inline-block",void bgMusic.pause();requestAnimationFrame(update)}}function restartGame(){resetGame()}canvas.addEventListener("click",jump),canvas.addEventListener("touchstart",(e=>{e.preventDefault(),jump()})),window.addEventListener("click",(()=>{bgMusic.paused&&!isGameOver&&bgMusic.play().catch((()=>{}))}),{once:!0}),resetGame()</script>
 </body>
 </html>
