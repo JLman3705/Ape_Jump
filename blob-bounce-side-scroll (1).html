@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Monkey Bounce</title>
+  <style>
+    body { margin: 0; background: #111; color: white; font-family: sans-serif; text-align: center; }
+    canvas { display: block; margin: 20px auto; background: #222; }
+    #restartBtn {
+      display: none;
+      padding: 10px 20px;
+      font-size: 18px;
+      margin-top: 10px;
+      background: #00d4ff;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Spikes jumped: <span id="score">0</span></h2>
+<canvas id="gameCanvas" width="480" height="270"></canvas>
+<button id="restartBtn" onclick="restartGame()">Restart</button>
+
+<!-- Preload monkey images and sounds -->
+<img id="monkey1" src="monkey_walk1_cropped.png" style="display:none;">
+<img id="monkey2" src="monkey_walk2_cropped.png" style="display:none;">
+<audio id="bounceSound" src="bounce_alt (1).mp3" preload="auto"></audio>
+<audio id="bgMusic" src="music_drum_patttern (1).mp3" preload="auto" loop></audio>
+
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+const bounceSound = document.getElementById("bounceSound");
+const bgMusic = document.getElementById("bgMusic");
+const monkey1 = document.getElementById("monkey1");
+const monkey2 = document.getElementById("monkey2");
+
+let gravity = 0.5;
+let jumpStrength = -11;
+let spikeSpeed = 2;
+let score = 0;
+let isGameOver = false;
+let monkey, spikes, frameCounter = 0;
+
+function resetGame() {
+  monkey = { x: 40, y: 0, width: 32, height: 32, dy: 0, onGround: true }; // size updated
+  monkey.y = 260 - monkey.height; // ground alignment
+  score = 0;
+  isGameOver = false;
+  spikes = [];
+  document.getElementById("score").innerText = score;
+  document.getElementById("restartBtn").style.display = "none";
+  bgMusic.currentTime = 0;
+  bgMusic.play();
+  requestAnimationFrame(update);
+}
+
+function spawnSpikeAt(x) {
+  spikes.push({ x: x, y: 240, width: 20, height: 20, passed: false });
+}
+
+function spawnMoreSpikes() {
+  let farthestX = spikes.length ? Math.max(...spikes.map(s => s.x)) : 480;
+  while (farthestX < canvas.width + 600) {
+    const spacing = Math.random() * 200 + 100;
+    farthestX += spacing;
+    spawnSpikeAt(farthestX);
+  }
+}
+
+function jump() {
+  if (!isGameOver && monkey.onGround) {
+    monkey.dy = jumpStrength;
+    monkey.onGround = false;
+    bounceSound.currentTime = 0;
+    bounceSound.play();
+  }
+}
+
+canvas.addEventListener("click", jump);
+canvas.addEventListener("touchstart", e => { e.preventDefault(); jump(); });
+
+function drawMonkey() {
+  const img = (Math.floor(frameCounter / 10) % 2 === 0) ? monkey1 : monkey2;
+  ctx.drawImage(img, monkey.x, monkey.y, monkey.width, monkey.height);
+  frameCounter++;
+}
+
+function drawFloor() {
+  ctx.strokeStyle = "#888";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0, 260);
+  ctx.lineTo(canvas.width, 260);
+  ctx.stroke();
+}
+
+function drawSpikes() {
+  ctx.fillStyle = "#ff4444";
+  spikes.forEach(spike => {
+    ctx.beginPath();
+    ctx.moveTo(spike.x, spike.y + spike.height);
+    ctx.lineTo(spike.x + spike.width / 2, spike.y);
+    ctx.lineTo(spike.x + spike.width, spike.y + spike.height);
+    ctx.closePath();
+    ctx.fill();
+  });
+}
+
+function checkCollision() {
+  return spikes.some(spike =>
+    monkey.x + monkey.width > spike.x &&
+    monkey.x < spike.x + spike.width &&
+    monkey.y + monkey.height > spike.y
+  );
+}
+
+function update() {
+  if (isGameOver) return;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  monkey.dy += gravity;
+  monkey.y += monkey.dy;
+
+  if (monkey.y + monkey.height >= 260) {
+    monkey.y = 260 - monkey.height;
+    monkey.dy = 0;
+    monkey.onGround = true;
+  }
+
+  spikes.forEach(spike => {
+    spike.x -= spikeSpeed;
+    if (!spike.passed && spike.x + spike.width < monkey.x) {
+      spike.passed = true;
+      score++;
+      document.getElementById("score").innerText = score;
+    }
+  });
+
+  spikes = spikes.filter(spike => spike.x + spike.width > -50);
+  spawnMoreSpikes();
+
+  drawFloor();
+  drawMonkey();
+  drawSpikes();
+
+  if (checkCollision()) {
+    isGameOver = true;
+    document.getElementById("restartBtn").style.display = "inline-block";
+    bgMusic.pause();
+    return;
+  }
+
+  requestAnimationFrame(update);
+}
+
+function restartGame() {
+  resetGame();
+}
+
+window.addEventListener("click", () => {
+  if (bgMusic.paused && !isGameOver) {
+    bgMusic.play().catch(() => {});
+  }
+}, { once: true });
+
+resetGame();
+</script>
+
+</body>
+</html>
