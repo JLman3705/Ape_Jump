@@ -91,7 +91,7 @@ function spawnMoreSpikes() {
 
 function maybeSpawnPalmTree() {
   if (Math.random() < 0.01) {
-    trees.push({ x: canvas.width + 50, y: 260 - 64, width: 48, height: 64 });
+    trees.push({ x: canvas.width + 50, y: 260 - 64 + 2, width: 48, height: 64 });
   }
 }
 
@@ -161,7 +161,7 @@ function update() {
   monkey.y += monkey.dy;
 
   if (monkey.y + monkey.height >= 260) {
-    monkey.y = 260 - monkey.height;
+    monkey.y = 260 - monkey.height + 1; 
     monkey.dy = 0;
     monkey.onGround = true;
   }
