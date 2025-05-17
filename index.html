@@ -5,18 +5,32 @@
 <meta name=viewport content="width=device-width,initial-scale=1">
 <title>Ape Jump</title>
 <link rel=icon type=image/png href=favicon.png>
-<style>body,html{margin:0;padding:0;background:#000;color:#fff;font-family:sans-serif;height:100%}body{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}canvas{background:#000;width:100%;max-width:100%;height:auto;touch-action:manipulation}#restartBtn{display:none;padding:10px 20px;font-size:18px;margin:10px;background:#00d4ff;color:#000;border:none;border-radius:20px;cursor:pointer;z-index:2}#playCount{position:absolute;left:12px;bottom:12px;font-size:12px;color:#ccc;font-family:monospace}</style>
-</head>
+<meta property=og:title content="Ape Jump - The Game!">
+<meta property=og:description content="Play Ape Jump – Jump over spikes and soar through the skies!">
+<meta property=og:image content=https://jlman3705.github.io/Ape_Jump/ApeJumpPreview.png>
+<meta property=og:url content=https://jlman3705.github.io/Ape_Jump/ >
+<meta name=twitter:card content=summary_large_image>
+<meta name=twitter:site content=@jlman3705>
+<meta name=twitter:title content="Ape Jump - The Game!">
+<meta name=twitter:description content="Play Ape Jump – Jump over spikes and soar through the skies!">
+<meta name=twitter:image content="https://jlman3705.github.io/Ape_Jump/ApeJumpPreview.png?v=4">
+<meta name=twitter:url content=https://jlman3705.github.io/Ape_Jump/ ><style>body,html{margin:0;padding:0;background:#000;color:#fff;font-family:sans-serif;height:100%}body{display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}canvas{background:#000;width:100%;max-width:100%;height:auto;touch-action:manipulation}#restartBtn{display:none;padding:10px 20px;font-size:18px;margin:10px;background:#00d4ff;color:#000;border:none;border-radius:20px;cursor:pointer;z-index:2}h2{font-size:1.2em;margin:12px 0 6px}.coffee{margin-bottom:12px}</style></head>
 <body><h2>Spikes jumped: <span id=score>0</span></h2>
+<div class=coffee style=margin-top:10px>
+<a href=https://www.buymeacoffee.com/jlman3705 target=_blank>
+<img src=https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png alt="Buy Me A Coffee" height=45 style=border-radius:20px>
+</a>
+</div>
 <canvas id=gameCanvas></canvas>
-<canvas id=hitCanvas width=32 height=36 style=display:none></canvas>
-<button id=restartBtn onclick=restartGame()>Restart</button>
-<div id=playCount>Plays: <span id=counter>...</span></div><img id=monkey1 src=Run1.png style=display:none>
+<div id=playCount style=position:absolute;left:12px;bottom:12px;font-size:12px;color:#ccc;font-family:monospace>
+Plays: <span id=counter>...</span>
+</div>
+<button id=restartBtn onclick=restartGame()>Restart</button><img id=monkey1 src=Run1.png style=display:none>
 <img id=monkey2 src=Run2.png style=display:none>
 <img id=palmTree src=Palm_Tree.png style=display:none>
 <img id=cloud1 src=Cloud1.png style=display:none>
 <img id=cloud2 src=Cloud2.png style=display:none>
 <img id=planeBanner src=PlaneBanner.png style=display:none>
 <audio id=bounceSound src=Jump.mp3 preload=auto></audio>
-<audio id=bgMusic src=Music.mp3 preload=auto loop></audio><script>const canvas=document.getElementById("gameCanvas"),ctx=canvas.getContext("2d"),hitCtx=document.getElementById("hitCanvas").getContext("2d"),bounceSound=document.getElementById("bounceSound"),bgMusic=document.getElementById("bgMusic"),monkey1=document.getElementById("monkey1"),monkey2=document.getElementById("monkey2"),palmTree=document.getElementById("palmTree"),cloud1=document.getElementById("cloud1"),cloud2=document.getElementById("cloud2"),planeBanner=document.getElementById("planeBanner");function resizeCanvas(){const e=Math.min(window.innerWidth,960);canvas.width=e,canvas.height=e*(9/16)}resizeCanvas(),window.addEventListener("resize",resizeCanvas);let monkey,gravity=.5,jumpStrength=-11,spikeSpeed=2,score=0,isGameOver=!1,frameCounter=0,spikes=[],trees=[],clouds=[],plane=null,lastPlaneSpawn=0;function resetGame(){const e=canvas.height-10;monkey={x:40,y:e-32,width:32,height:36,dy:0,onGround:!0},score=0,isGameOver=!1,spikes=[],trees=[],clouds=[],plane=null,lastPlaneSpawn=performance.now(),document.getElementById("score").innerText=score,document.getElementById("restartBtn").style.display="none",bgMusic.currentTime=0,requestAnimationFrame(update)}function checkCollision(){for(const e of spikes){const t=Math.max(monkey.x,e.x),n=Math.max(monkey.y,e.y),o=Math.min(monkey.x+monkey.width,e.x+e.width)-t,i=Math.min(monkey.y+monkey.height,e.y+e.height)-n;if(o<=0||i<=0)continue;hitCtx.clearRect(0,0,monkey.width,monkey.height),hitCtx.drawImage(monkey1,0,0,monkey.width,monkey.height);const a=hitCtx.getImageData(t-monkey.x,n-monkey.y,o,i).data;hitCtx.clearRect(0,0,monkey.width,monkey.height),hitCtx.fillStyle="#ff4444",hitCtx.beginPath(),hitCtx.moveTo(e.x-t,e.y-n+e.height),hitCtx.lineTo(e.x-t+e.width/2,e.y-n),hitCtx.lineTo(e.x-t+e.width,e.y-n+e.height),hitCtx.closePath(),hitCtx.fill();const m=hitCtx.getImageData(0,0,o,i).data;for(let e=3;e<a.length;e+=4)if(a[e]>0&&m[e]>0)return!0}return!1}</script></body>
+<audio id=bgMusic src=Music.mp3 preload=auto loop></audio><script type=module>import{initializeApp}from"https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";import{getDatabase,ref,get,runTransaction}from"https://www.gstatic.com/firebasejs/11.7.3/firebase-database.js";const firebaseConfig={apiKey:"AIzaSyB5fFWg83b77trZiWjBmrzHu5yTEe0M8uQ",authDomain:"ape-jump.firebaseapp.com",projectId:"ape-jump",databaseURL:"https://ape-jump-default-rtdb.firebaseio.com",storageBucket:"ape-jump.appspot.com",messagingSenderId:"368686294220",appId:"1:368686294220:web:4b3ab86d492b07a2ed0e69"},app=initializeApp(firebaseConfig),db=getDatabase(app),counterRef=ref(db,"playCount");sessionStorage.getItem("played")?get(counterRef).then((e=>{e.exists()&&(document.getElementById("counter").innerText=e.val())})):runTransaction(counterRef,(e=>(e||0)+1)).then((e=>{document.getElementById("counter").innerText=e.snapshot.val(),sessionStorage.setItem("played","true")})).catch((()=>{document.getElementById("counter").innerText="Error"}))</script><script></script></body>
 </html>
