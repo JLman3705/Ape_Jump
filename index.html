@@ -19,7 +19,7 @@
 </head>
 <body>
 <h2>Spikes jumped: <span id=score>0</span></h2>
-<div class=coffee style=margin-top:10px>
+<div class=coffee>
 <a href=https://www.buymeacoffee.com/jlman3705 target=_blank>
 <img src=https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png alt="Buy Me A Coffee" height=45 style=border-radius:20px>
 </a>
@@ -34,5 +34,8 @@
 <img id=cloud2 src=Cloud2.png style=display:none>
 <img id=planeBanner src=PlaneBanner.png style=display:none>
 <audio id=bounceSound src=Jump.mp3 preload=auto></audio>
-<audio id=bgMusic src=Music.mp3 preload=auto loop></audio><script type=module>import{initializeApp}from"https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";import{getDatabase,ref,get,runTransaction}from"https://www.gstatic.com/firebasejs/11.7.3/firebase-database.js";const firebaseConfig={apiKey:"AIzaSyB5fFWg83b77trZiWjBmrzHu5yTEe0M8uQ",authDomain:"ape-jump.firebaseapp.com",projectId:"ape-jump",databaseURL:"https://ape-jump-default-rtdb.firebaseio.com",storageBucket:"ape-jump.appspot.com",messagingSenderId:"368686294220",appId:"1:368686294220:web:4b3ab86d492b07a2ed0e69"},app=initializeApp(firebaseConfig),db=getDatabase(app),counterRef=ref(db,"playCount");sessionStorage.getItem("played")?get(counterRef).then((e=>{e.exists()&&(document.getElementById("counter").innerText=e.val())})):runTransaction(counterRef,(e=>(e||0)+1)).then((e=>{document.getElementById("counter").innerText=e.snapshot.val(),sessionStorage.setItem("played","true")})).catch((e=>{console.error("Failed to increment play count:",e),document.getElementById("counter").innerText="Error"}))</script><script src=game.js></script></body>
+<audio id=bgMusic src=Music.mp3 preload=auto loop></audio>
+<script type=module>import{initializeApp}from"https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";import{getDatabase,ref,get,increment,runTransaction}from"https://www.gstatic.com/firebasejs/11.7.3/firebase-database.js";const firebaseConfig={apiKey:"AIzaSyB5fFWg83b77trZiWjBmrzHu5yTEe0M8uQ",authDomain:"ape-jump.firebaseapp.com",databaseURL:"https://ape-jump-default-rtdb.firebaseio.com",projectId:"ape-jump",storageBucket:"ape-jump.appspot.com",messagingSenderId:"368686294220",appId:"1:368686294220:web:4b3ab86d492b07a2ed0e69"},app=initializeApp(firebaseConfig),db=getDatabase(app),counterSpan=document.getElementById("counter");let alreadyCounted=!1;async function updatePlayCount(){const a=ref(db,"totalPlays");await runTransaction(a,(a=>alreadyCounted?a:(alreadyCounted=!0,(a||0)+1)))}async function showPlayCount(){const a=await get(ref(db,"totalPlays")),e=a.exists()?a.val():0;counterSpan.innerText=e}window.addEventListener("DOMContentLoaded",(()=>{updatePlayCount().then(showPlayCount)}))</script>
+<script></script>
+</body>
 </html>
